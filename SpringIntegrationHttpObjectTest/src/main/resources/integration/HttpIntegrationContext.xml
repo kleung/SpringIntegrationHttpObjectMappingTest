@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-http="http://www.springframework.org/schema/integration/http"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/http http://www.springframework.org/schema/integration/http/spring-integration-http.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<int:gateway id="startInboundGateway"
+				 service-interface="com.test.SpringIntegrationHttpObjectTest.integration.gateway.TestDataHttpFlowGateway"
+				 default-reply-timeout="600000" 
+				 default-reply-channel="replyChannel">
+		<int:method name="getTestData" 
+					request-channel="startGetTestDataChannel"
+					payload-expression="new java.util.Date()" /> 
+	</int:gateway>
+	
+	<int:channel id="startGetTestDataChannel" />
+	
+	<int:channel id="replyChannel" />
+	
+	<int-http:outbound-gateway id="httpOutboundGateway"
+								url="http://localhost:8080/api/getTestData"
+								http-method="GET"
+								request-channel="startGetTestDataChannel"
+								extract-request-payload="true"
+							   	expected-response-type="com.test.SpringIntegrationHttpObjectTest.model.TestData"
+							   	reply-channel="replyChannel">
+	</int-http:outbound-gateway>
+	
+</beans>
